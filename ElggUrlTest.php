@@ -87,6 +87,7 @@ class ElggUrlTest extends PHPUnit_Framework_TestCase {
 			'https://example.org/base/path/h/foo/12-4/123/hello' => 123,
 			'https://example.org/base/path/profile/123' => null,
 			'http://example.org/base/path/file/view/61/123' => 61,
+			'http://example.org/base/path/groups/profile/61/hello' => 61,
 			'http://example.org/base/path/file/group/61/all' => null,
 		);
 		foreach ($data as $url => $val) {
