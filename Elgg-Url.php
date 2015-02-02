@@ -66,11 +66,15 @@ class Url {
 					if ($segments[0] !== 'profile') {
 						if ((count($segments) >= 3)
 								&& in_array($segments[1], array('view', 'read'))
-								&& preg_match('~^[1-9]\\d*$~', $segments[2])) {
-							$ret['guid'] = (int) $segments[2];
+								&& preg_match('~^[1-9]\\d*$~', $segments[2])
+							) {
+							$ret['guid'] = (int)$segments[2];
+						} elseif (preg_match('~^[^/]+/group/[1-9]\\d*/all~', $sitePath)) {
+							// this is a listing of group items: the GUID is *not* the GUID of a particular
+							// object, so don't assign it.
 
-							// less-reliable guessing
 						} elseif (preg_match('~^(?:[^/]+/)+([1-9]\\d*)(?:$|/)~', $sitePath, $m)) {
+							// less-reliable guessing
 							$ret['guid'] = (int) $m[1];
 						}
 					}
