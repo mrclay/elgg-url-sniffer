@@ -30,7 +30,16 @@ class Url {
 	 */
 	public function getGuid($url) {
 		$url = $this->analyze($url);
-		return ($url && $url['guid']) ? $url['guid'] : 0;
+		return empty($url['guid']) ? 0 : $url['guid'];
+	}
+
+	/**
+	 * @param string $url
+	 * @return int 0 if no GUID found
+	 */
+	public function getContainerGuid($url) {
+		$url = $this->analyze($url);
+		return empty($url['container_guid']) ? 0 : $url['container_guid'];
 	}
 
 	/**
@@ -47,6 +56,7 @@ class Url {
 			'scheme_matches' => ($scheme === $this->scheme),
 			'host_matches' => ($host === $this->host),
 			'guid' => null,
+			'container_guid' => null,
 			'action' => null,
 			'handler' => null,
 			'handler_segments' => array(),
@@ -69,9 +79,13 @@ class Url {
 								&& preg_match('~^[1-9]\\d*$~', $segments[2])
 							) {
 							$ret['guid'] = (int)$segments[2];
-						} elseif (preg_match('~^[^/]+/group/[1-9]\\d*/all~', $sitePath)) {
-							// this is a listing of group items: the GUID is *not* the GUID of a particular
-							// object, so don't assign it.
+						} elseif (preg_match('~^[^/]+/group/([1-9]\\d*)/all$~', $sitePath, $m)) {
+							// this is a listing of group items
+							$ret['container_guid'] = (int) $m[1];
+
+						} elseif (preg_match('~^[^/]+/add/([1-9]\\d*)$~', $sitePath, $m)) {
+							// this is a new item creation page
+							$ret['container_guid'] = (int) $m[1];
 
 						} elseif (preg_match('~^(?:[^/]+/)+([1-9]\\d*)(?:$|/)~', $sitePath, $m)) {
 							// less-reliable guessing

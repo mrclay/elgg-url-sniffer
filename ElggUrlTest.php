@@ -86,9 +86,30 @@ class ElggUrlTest extends PHPUnit_Framework_TestCase {
 			'https://example.org/base/path/h/view/023/not-real-guid' => null,
 			'https://example.org/base/path/h/foo/12-4/123/hello' => 123,
 			'https://example.org/base/path/profile/123' => null,
-			'http://example.org/base/path/file/view/61/123' => 61,
-			'http://example.org/base/path/groups/profile/61/hello' => 61,
-			'http://example.org/base/path/file/group/61/all' => null,
+			'http://example.org/base/path/file/view/123/345' => 123,
+			'http://example.org/base/path/groups/profile/123/hello' => 123,
+			'http://example.org/base/path/file/group/123/all' => null,
+			'http://example.org/base/path/file/add/123' => null,
+		);
+		foreach ($data as $url => $val) {
+			$url = $this->analyze($url);
+			$this->assertEquals($val, $url[$check]);
+		}
+	}
+
+	public function testContainerGuid() {
+		$check = 'container_guid';
+		$data = array(
+			'http://example.org/base/path' => null,
+			'https://example.org/base/path/h' => null,
+			'https://example.org/base/path/h/123?234' => null,
+			'https://example.org/base/path/h/view/023/not-real-guid' => null,
+			'https://example.org/base/path/h/foo/12-4/123/hello' => null,
+			'https://example.org/base/path/profile/123' => null,
+			'http://example.org/base/path/file/view/123/345' => null,
+			'http://example.org/base/path/groups/profile/123/hello' => null,
+			'http://example.org/base/path/file/group/123/all' => 123,
+			'http://example.org/base/path/file/add/123' => 123,
 		);
 		foreach ($data as $url => $val) {
 			$url = $this->analyze($url);
