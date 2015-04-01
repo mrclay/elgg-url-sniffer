@@ -62,38 +62,45 @@ class Url {
 			'handler_segments' => array(),
 		);
 		$ret['in_site'] = ($ret['host_matches'] && (0 === strpos($path, $this->path)));
-		if ($ret['in_site']) {
-			$sitePath = substr($path, strlen($this->path));
-			if (preg_match('~^action/(.*)~', $sitePath, $m)) {
-				if (preg_match('~^[^/]~', $m[1])) {
-					$ret['action'] = $m[1];
-				}
-			} else {
-				$segments = explode('/', $sitePath);
-				if (!empty($segments[0])) {
-					$ret['handler'] = $segments[0];
-					$ret['handler_segments'] = array_slice($segments, 1);
-					if ($segments[0] !== 'profile') {
-						if ((count($segments) >= 3)
-								&& in_array($segments[1], array('view', 'read'))
-								&& preg_match('~^[1-9]\\d*$~', $segments[2])
-							) {
-							$ret['guid'] = (int)$segments[2];
-						} elseif (preg_match('~^[^/]+/group/([1-9]\\d*)/all$~', $sitePath, $m)) {
-							// this is a listing of group items
-							$ret['container_guid'] = (int) $m[1];
+		if (!$ret['in_site']) {
+			return $ret;
+		}
 
-						} elseif (preg_match('~^[^/]+/add/([1-9]\\d*)$~', $sitePath, $m)) {
-							// this is a new item creation page
-							$ret['container_guid'] = (int) $m[1];
-
-						} elseif (preg_match('~^(?:[^/]+/)+([1-9]\\d*)(?:$|/)~', $sitePath, $m)) {
-							// less-reliable guessing
-							$ret['guid'] = (int) $m[1];
-						}
-					}
-				}
+		$sitePath = substr($path, strlen($this->path));
+		if (preg_match('~^action/(.*)~', $sitePath, $m)) {
+			if (preg_match('~^[^/]~', $m[1])) {
+				$ret['action'] = $m[1];
 			}
+			return $ret;
+		}
+
+		$segments = explode('/', $sitePath);
+		if (empty($segments[0])) {
+			return $ret;
+		}
+
+		$ret['handler'] = $segments[0];
+		$ret['handler_segments'] = array_slice($segments, 1);
+		if ($segments[0] === 'profile') {
+			return $ret;
+		}
+
+		if ((count($segments) >= 3)
+			&& in_array($segments[1], array('view', 'read'))
+			&& preg_match('~^[1-9]\\d*$~', $segments[2])
+		) {
+			$ret['guid'] = (int)$segments[2];
+		} elseif (preg_match('~^[^/]+/group/([1-9]\\d*)/all$~', $sitePath, $m)) {
+			// this is a listing of group items
+			$ret['container_guid'] = (int) $m[1];
+
+		} elseif (preg_match('~^[^/]+/add/([1-9]\\d*)$~', $sitePath, $m)) {
+			// this is a new item creation page
+			$ret['container_guid'] = (int) $m[1];
+
+		} elseif (preg_match('~^(?:[^/]+/)+([1-9]\\d*)(?:$|/)~', $sitePath, $m)) {
+			// less-reliable guessing
+			$ret['guid'] = (int) $m[1];
 		}
 		return $ret;
 	}
