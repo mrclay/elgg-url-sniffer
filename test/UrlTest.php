@@ -1,14 +1,16 @@
 <?php
 
+use UFCOE\Elgg\Url;
+
 class ElggUrlTest extends PHPUnit_Framework_TestCase {
 
 	/**
-	 * @var UFCOE\Elgg\Url
+	 * @var Url
 	 */
 	protected $url;
 
 	public function setUp() {
-		$this->url = new UFCOE\Elgg\Url('http://example.org/base/path/');
+		$this->url = new Url('http://example.org/base/path/');
 	}
 
 	protected function analyze($url) {
@@ -20,7 +22,7 @@ class ElggUrlTest extends PHPUnit_Framework_TestCase {
 		$this->assertFalse($this->analyze('http://example.org'));
 
 		$this->setExpectedException('InvalidArgumentException');
-		$url = new \UFCOE\Elgg\Url('ftp://example.org/');
+		new Url('ftp://example.org/');
 	}
 
 	public function testInSite() {
