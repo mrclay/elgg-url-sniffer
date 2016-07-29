@@ -1,8 +1,9 @@
 <?php
 
 use UFCOE\Elgg\Url;
+use UFCOE\Elgg\Url\Result;
 
-class ElggUrlTest extends PHPUnit_Framework_TestCase {
+class ElggUrlTest extends \PHPUnit_Framework_TestCase {
 
 	/**
 	 * @var Url
@@ -19,27 +20,26 @@ class ElggUrlTest extends PHPUnit_Framework_TestCase {
 
 	public function testInvalidUrl() {
 		$this->assertFalse($this->analyze('ftp://example.org/'));
-		$this->assertFalse($this->analyze('http://example.org'));
+		$this->assertInstanceOf(Result::class, $this->analyze('http://example.org'));
 
 		$this->setExpectedException('InvalidArgumentException');
 		new Url('ftp://example.org/');
 	}
 
 	public function testInSite() {
-		$check = 'in_site';
 		$data = array(
-			'http://example.org/base/path' => false,
+			'http://example.org/base/pat' => false,
+			'http://example.org/base/path' => true,
 			'http://example.org/base/path/' => true,
 			'https://example.org/base/path/foo' => true,
 		);
 		foreach ($data as $url => $val) {
 			$url = $this->analyze($url);
-			$this->assertEquals($val, $url[$check]);
+			$this->assertSame($val, $url->in_site);
 		}
 	}
 
 	public function testAction() {
-		$check = 'action';
 		$data = array(
 			'http://example.org/base/path' => null,
 			'https://example.org/base/path/action/foo/bar' => 'foo/bar',
@@ -48,25 +48,25 @@ class ElggUrlTest extends PHPUnit_Framework_TestCase {
 		);
 		foreach ($data as $url => $val) {
 			$url = $this->analyze($url);
-			$this->assertEquals($val, $url[$check]);
+			$this->assertSame($val, $url->action);
 		}
 	}
 
-	public function testHandler() {
-		$check = 'handler';
+	public function testIdentifier() {
 		$data = array(
-			'http://example.org/base/path' => null,
+			'http://example.org/base' => null,
+			'http://example.org/base/path' => '',
+			'http://example.org/base/path/' => '',
 			'https://example.org/base/path/h' => 'h',
 			'https://example.org/base/path/h/f?123' => 'h',
 		);
 		foreach ($data as $url => $val) {
 			$url = $this->analyze($url);
-			$this->assertEquals($val, $url[$check]);
+			$this->assertSame($val, $url->identifier);
 		}
 	}
 
 	public function testSegments() {
-		$check = 'handler_segments';
 		$data = array(
 			'http://example.org/base/path' => array(),
 			'https://example.org/base/path/h' => array(),
@@ -75,52 +75,45 @@ class ElggUrlTest extends PHPUnit_Framework_TestCase {
 		);
 		foreach ($data as $url => $val) {
 			$url = $this->analyze($url);
-			$this->assertEquals($val, $url[$check]);
+			$this->assertSame($val, $url->handler_segments);
 		}
 	}
 
 	public function testGuid() {
-		$check = 'guid';
 		$data = array(
-			'http://example.org/base/path' => null,
-			'https://example.org/base/path/h' => null,
+			'http://example.org/base/path' => 0,
+			'https://example.org/base/path/h' => 0,
 			'https://example.org/base/path/h/123?234' => 123,
-			'https://example.org/base/path/h/view/023/not-real-guid' => null,
+			'https://example.org/base/path/h/view/023/not-real-guid' => 0,
 			'https://example.org/base/path/h/foo/12-4/123/hello' => 123,
-			'https://example.org/base/path/profile/123' => null,
+			'https://example.org/base/path/profile/123' => 0,
 			'http://example.org/base/path/file/view/123/345' => 123,
 			'http://example.org/base/path/groups/profile/123/hello' => 123,
-			'http://example.org/base/path/file/group/123/all' => null,
-			'http://example.org/base/path/file/add/123' => null,
+			'http://example.org/base/path/file/group/123/all' => 0,
+			'http://example.org/base/path/file/add/123' => 0,
 		);
 		foreach ($data as $url => $val) {
 			$url = $this->analyze($url);
-			$this->assertEquals($val, $url[$check]);
+			$this->assertSame($val, $url->guid);
 		}
 	}
 
 	public function testContainerGuid() {
-		$check = 'container_guid';
 		$data = array(
-			'http://example.org/base/path' => null,
-			'https://example.org/base/path/h' => null,
-			'https://example.org/base/path/h/123?234' => null,
-			'https://example.org/base/path/h/view/023/not-real-guid' => null,
-			'https://example.org/base/path/h/foo/12-4/123/hello' => null,
-			'https://example.org/base/path/profile/123' => null,
-			'http://example.org/base/path/file/view/123/345' => null,
-			'http://example.org/base/path/groups/profile/123/hello' => null,
+			'http://example.org/base/path' => 0,
+			'https://example.org/base/path/h' => 0,
+			'https://example.org/base/path/h/123?234' => 0,
+			'https://example.org/base/path/h/view/023/not-real-guid' => 0,
+			'https://example.org/base/path/h/foo/12-4/123/hello' => 0,
+			'https://example.org/base/path/profile/123' => 0,
+			'http://example.org/base/path/file/view/123/345' => 0,
+			'http://example.org/base/path/groups/profile/123/hello' => 0,
 			'http://example.org/base/path/file/group/123/all' => 123,
 			'http://example.org/base/path/file/add/123' => 123,
 		);
 		foreach ($data as $url => $val) {
 			$url = $this->analyze($url);
-			$this->assertEquals($val, $url[$check]);
+			$this->assertSame($val, $url->container_guid);
 		}
-	}
-
-	public function testGetGuid() {
-		$this->assertEquals(0, $this->url->getGuid('ftp://foo.bar/'));
-		$this->assertEquals(123, $this->url->getGuid('https://example.org/base/path/h/foo/12-4/123/hello'));
 	}
 }
