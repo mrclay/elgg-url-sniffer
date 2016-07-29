@@ -116,4 +116,17 @@ class ElggUrlTest extends \PHPUnit_Framework_TestCase {
 			$this->assertSame($val, $url->container_guid);
 		}
 	}
+
+	public function testUsername() {
+		$data = array(
+			'http://example.org/base' => null,
+			'https://example.org/base/path/profile/' => null,
+			'https://example.org/base/path/profile/foo' => 'foo',
+			'https://example.org/base/path/profile/f%3Doo' => 'f=oo',
+		);
+		foreach ($data as $url => $val) {
+			$url = $this->analyze($url);
+			$this->assertSame($val, $url->username);
+		}
+	}
 }
