@@ -17,6 +17,6 @@
     "phpunit/phpunit": "~4.8"
   },
   "autoload": {
-    "classmap": ["Url.php", "Result.php"]
+    "classmap": ["SiteUrl.php", "SitePath.php"]
   }
 }
